@@ -1,23 +1,22 @@
 export type Category={id:string;name:string;color:string};
 export type Item={id:string;name:string;sku:string;category:string|null;price:string;cost:string;barcode:string;description:string;available_for_sale:boolean};
-export type Session={authenticated:boolean;username:string|null};
+export type Session={authenticated:boolean;username:string|null;is_staff:boolean};
 export type ItemPayload={name:string;sku:string;price:string;cost:string;category:string|null;barcode:string;description:string;available_for_sale:boolean};
-// Same-origin requests go through the Vite development proxy, avoiding cross-origin failures.
 const base='/api';
 function csrf():string{return document.cookie.split('; ').find(x=>x.startsWith('csrftoken='))?.split('=')[1]??''}
 export async function request<T>(path:string,options:RequestInit={}):Promise<T>{
   let response:Response;
   try{
     response=await fetch(base+path,{...options,credentials:'include',headers:{'Content-Type':'application/json','X-CSRFToken':decodeURIComponent(csrf()),...options.headers}});
-  }catch{
-    throw new Error('No se pudo conectar con la API. Revisa que Docker esté iniciado y que los servicios api y web estén funcionando.');
-  }
-  if(!response.ok){let detail='';try{const result=await response.json() as Record<string,unknown>;detail=JSON.stringify(result)}catch{detail=response.statusText}throw new Error(detail||`Error HTTP ${response.status}`)}
+  }catch{throw new Error('No se pudo conectar con la API. Comprueba que Django esté ejecutándose en el puerto 8000.')}
+  if(!response.ok){let detail='';try{const result=await response.json() as Record<string,unknown>;detail=typeof result.detail==='string'?result.detail:JSON.stringify(result)}catch{detail=response.statusText}throw new Error(detail||`Error HTTP ${response.status}`)}
   if(response.status===204)return undefined as T;
   return response.json() as Promise<T>;
 }
 export const api={
   session:()=>request<Session>('/session/'),
+  login:(username:string,password:string)=>request<Session>('/login/',{method:'POST',body:JSON.stringify({username,password})}),
+  logout:()=>request<Session>('/logout/',{method:'POST'}),
   categories:()=>request<Category[]>('/categories/'),
   items:()=>request<Item[]>('/items/'),
   createCategory:(data:Pick<Category,'name'|'color'>)=>request<Category>('/categories/',{method:'POST',body:JSON.stringify(data)}),
