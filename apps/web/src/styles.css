@@ -14,3 +14,20 @@
 .dialog .checkbox-line input{margin:0;width:17px;height:17px}
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 @media(max-width:720px){.search-field{min-width:0;flex:1}.toolbar{gap:8px;flex-wrap:wrap}.form-grid{grid-template-columns:1fr}.section-title{font-size:0;justify-content:center}.section-title svg:last-child{display:none}}
+
+/* Authentication */
+.login-page{min-height:100vh;display:grid;place-items:center;padding:24px;background:radial-gradient(ellipse at 15% 15%,#e9efff 0,transparent 46%),#f7f9fc}
+.login-card{width:min(432px,100%);border:1px solid #e5eaf4;background:#fff;padding:42px;border-radius:21px;box-shadow:0 25px 80px #1f397510}
+.login-logo{display:flex;align-items:center;gap:12px;font-size:21px;letter-spacing:-.7px;margin-bottom:38px}
+.login-icon{width:46px;height:46px;display:grid;place-items:center;border-radius:12px;color:#345ae3;background:#eef2ff;margin-bottom:22px}
+.login-card h1{font-size:27px;margin-bottom:8px}
+.login-card .muted{line-height:1.6;margin-bottom:25px}
+.login-card form label{display:block;font-weight:650;font-size:12px;margin-bottom:17px;color:#48566c}
+.login-card input{display:block;width:100%;padding:13px;border:1px solid #dae2ee;border-radius:9px;margin-top:9px;outline-color:#3156e7;background:#fff}
+.login-submit{width:100%;justify-content:center;margin-top:8px;padding:14px}
+.login-submit:disabled{opacity:.55;cursor:wait}
+.login-caption{font-size:11px;color:#95a0b1;line-height:1.7;text-align:center;margin:23px 0 0}
+.account{display:flex;align-items:center;gap:14px}
+.signout{display:flex;align-items:center;gap:7px;border:1px solid #e1e7f0;border-radius:8px;background:white;padding:8px 10px;color:#5b677a;font-size:12px}
+.startup{min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px;color:#64748b}
+@media(max-width:500px){.login-card{padding:28px}.login-page{padding:14px}.account{gap:6px}.signout{font-size:0;gap:0}}
