@@ -2,20 +2,27 @@ import uuid
 from django.core.validators import MinValueValidator
 from django.db import models
 
+
 class Category(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(max_length=120, unique=True)
+    organization = models.ForeignKey("organization.Organization", on_delete=models.PROTECT, related_name="categories")
+    name = models.CharField(max_length=120)
     color = models.CharField(max_length=7, default="#64748b")
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["name"]
+        constraints = [
+            models.UniqueConstraint(fields=["organization", "name"], name="category_name_unique_in_organization")
+        ]
+
 
 class Item(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    organization = models.ForeignKey("organization.Organization", on_delete=models.PROTECT, related_name="items")
     name = models.CharField(max_length=200)
     category = models.ForeignKey(Category, on_delete=models.PROTECT, null=True, blank=True, related_name="items")
-    sku = models.CharField(max_length=40, unique=True)
+    sku = models.CharField(max_length=40)
     barcode = models.CharField(max_length=100, blank=True)
     description = models.TextField(blank=True)
     price = models.DecimalField(max_digits=14, decimal_places=2, validators=[MinValueValidator(0)])
@@ -27,6 +34,7 @@ class Item(models.Model):
     class Meta:
         ordering = ["name"]
         constraints = [
+            models.UniqueConstraint(fields=["organization", "sku"], name="item_sku_unique_in_organization"),
             models.CheckConstraint(condition=models.Q(price__gte=0), name="item_price_nonnegative"),
             models.CheckConstraint(condition=models.Q(cost__gte=0), name="item_cost_nonnegative"),
         ]
