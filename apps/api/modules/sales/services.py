@@ -7,6 +7,7 @@ from rest_framework.exceptions import ValidationError
 from modules.catalog.models import Item
 from modules.organization.models import Organization, Store
 from modules.inventory.services import record_stock_movement
+from modules.cash.models import CashShift
 from .models import Sale, SaleLine
 
 
@@ -31,6 +32,9 @@ def checkout(*, organization, store_id, lines, payment_method, cash_received, id
     store = Store.objects.filter(pk=store_id, organization=organization, is_active=True).first()
     if store is None:
         raise ValidationError({"store_id": "Sucursal no disponible."})
+    shift = CashShift.objects.select_for_update().filter(store=store, organization=organization, status=CashShift.Status.OPEN).first()
+    if shift is None:
+        raise ValidationError({"store_id": "Abre una caja antes de cobrar."})
     item_ids = [line["item_id"] for line in lines]
     items = {str(item.id): item for item in Item.objects.filter(
         organization=organization, id__in=item_ids, available_for_sale=True
@@ -52,7 +56,7 @@ def checkout(*, organization, store_id, lines, payment_method, cash_received, id
         raise ValidationError({"cash_received": "El efectivo recibido es insuficiente."})
 
     sale = Sale.objects.create(
-        organization=organization, store=store, cashier=cashier,
+        organization=organization, store=store, cashier=cashier, cash_shift=shift,
         idempotency_key=idempotency_key, payment_method=payment_method, total=total,
         cash_received=cash_received, change_due=cash_received-total,
     )
@@ -68,4 +72,6 @@ def checkout(*, organization, store_id, lines, payment_method, cash_received, id
             delta=-quantity, reason="sale", note=f"Venta {sale.id}",
             key=stock_key, user=cashier,
         )
+    shift.expected_amount += total
+    shift.save(update_fields=["expected_amount"])
     return sale, True
