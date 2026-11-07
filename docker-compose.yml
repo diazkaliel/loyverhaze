@@ -26,7 +26,7 @@ services:
   web:
     build: ./apps/web
     environment:
-      VITE_API_URL: ${VITE_API_URL:-http://localhost:8000/api}
+      API_PROXY_TARGET: http://api:8000
     volumes:
       - ./apps/web:/app
       - /app/node_modules
