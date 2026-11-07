@@ -1,6 +1,8 @@
 export type Category={id:string;name:string;color:string};
 export type Item={id:string;name:string;sku:string;category:string|null;price:string;cost:string;barcode:string;description:string;available_for_sale:boolean};
 export type Session={authenticated:boolean;username:string|null;is_staff:boolean;organizations:{id:string;name:string;role:string}[];active_organization_id:string|null};
+export type Store={id:string;name:string;is_active:boolean};
+export type Employee={id:string;username:string;role:'owner'|'manager'|'cashier';is_active:boolean};
 export type ItemPayload={name:string;sku:string;price:string;cost:string;category:string|null;barcode:string;description:string;available_for_sale:boolean};
 const base='/api';
 function csrf():string{return document.cookie.split('; ').find(x=>x.startsWith('csrftoken='))?.split('=')[1]??''}
@@ -18,6 +20,12 @@ export const api={
   login:(username:string,password:string)=>request<Session>('/login/',{method:'POST',body:JSON.stringify({username,password})}),
   logout:()=>request<Session>('/logout/',{method:'POST'}),
   chooseOrganization:(organization_id:string)=>request<{organization_id:string}>('/organization/select/',{method:'POST',body:JSON.stringify({organization_id})}),
+  stores:()=>request<Store[]>('/stores/'),
+  createStore:(data:{name:string;is_active:boolean})=>request<Store>('/stores/',{method:'POST',body:JSON.stringify(data)}),
+  updateStore:(id:string,data:{name:string;is_active:boolean})=>request<Store>(`/stores/${id}/`,{method:'PATCH',body:JSON.stringify(data)}),
+  employees:()=>request<Employee[]>('/employees/'),
+  createEmployee:(data:{username:string;password:string;role:'manager'|'cashier'})=>request<Employee>('/employees/',{method:'POST',body:JSON.stringify(data)}),
+  updateEmployee:(id:string,role:Employee['role'])=>request<Employee>(`/employees/${id}/`,{method:'PATCH',body:JSON.stringify({role})}),
   categories:()=>request<Category[]>('/categories/'),
   items:()=>request<Item[]>('/items/'),
   createCategory:(data:Pick<Category,'name'|'color'>)=>request<Category>('/categories/',{method:'POST',body:JSON.stringify(data)}),
