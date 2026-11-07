@@ -38,7 +38,7 @@ jobs:
       - run: pip install -r requirements.txt
       - run: python manage.py check
       - run: python manage.py makemigrations --check --dry-run
-      - run: python manage.py test modules.catalog modules.organization modules.inventory config.test_auth
+      - run: python manage.py test modules.catalog modules.organization modules.inventory modules.sales config.test_auth
   frontend:
     runs-on: ubuntu-latest
     defaults:
