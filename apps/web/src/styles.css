@@ -43,3 +43,36 @@
 .management .toolbar{min-height:64px}
 .management .checkbox-line{display:flex;align-items:center;gap:10px}
 .management .checkbox-line input{width:17px;height:17px;margin:0}
+
+/* First POS: articles to the left, ticket to the right, checkout anchored below */
+.content:has(.pos-page){max-width:none;padding:20px}
+.pos-workspace{display:grid;grid-template-columns:minmax(0,1fr) 350px;min-height:calc(100vh - 112px);gap:18px}
+.pos-catalog,.pos-ticket{background:#fff;border:1px solid #e7ebf2;border-radius:15px;min-width:0}
+.pos-catalog{padding:26px;overflow:auto}
+.pos-topbar,.pos-filters{display:flex;justify-content:space-between;align-items:center;gap:18px}
+.pos-topbar h1{margin:0}.pos-topbar label{font-size:12px;color:#657086;display:grid;gap:5px}
+.pos-topbar select,.pos-filters select{padding:11px;border-radius:9px;border:1px solid #e0e6ef;background:#fff;color:#334155}
+.pos-filters{margin:25px 0;justify-content:flex-start}.pos-filters .search-field{flex:1;max-width:390px}
+.pos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:13px}
+.pos-product{display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:5px;background:#fff;border:1px solid #e3eaf3;min-height:155px;padding:14px;border-radius:12px;color:#1e293b}
+.pos-product:hover:not(:disabled){border-color:#4365e2;box-shadow:0 7px 22px #3156e715}
+.pos-product:disabled{opacity:.42;cursor:not-allowed}
+.pos-product-icon{width:42px;height:42px;display:grid;place-items:center;background:#eef2ff;color:#3156e7;border-radius:10px;margin-bottom:7px}
+.pos-product strong{font-size:13px}.pos-product small{color:#94a3b8;font-size:11px}
+.pos-product-bottom{width:100%;margin-top:auto;display:flex;justify-content:space-between;gap:5px;align-items:end}
+.pos-product-bottom b{font-size:13px}.pos-ticket{display:flex;flex-direction:column}
+.pos-ticket-header{padding:22px;border-bottom:1px solid #edf0f5;display:flex;justify-content:space-between;align-items:center}
+.pos-ticket-header h2{font-size:17px;margin:0}.pos-ticket-header button,.pos-quantity button{background:white;border:1px solid #e6eaf0;border-radius:7px;padding:7px;display:grid;place-items:center}
+.pos-ticket-header button:disabled,.pos-quantity button:disabled{opacity:.35;cursor:not-allowed}
+.pos-lines{flex:1;min-height:200px;padding:12px 20px;overflow:auto}
+.pos-empty{text-align:center;color:#94a3b8;font-size:13px;padding:64px 10px}
+.pos-line{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:10px;align-items:center;border-bottom:1px solid #eef1f5;padding:14px 0}
+.pos-line strong{font-size:12px;display:block}.pos-line small{font-size:11px;color:#94a3b8;display:block;margin-top:5px}
+.pos-line b{font-size:12px}.pos-quantity{display:flex;align-items:center;gap:8px;font-size:12px}
+.pos-footer{padding:22px;border-top:1px solid #edf0f5;margin-top:auto}.pos-total{display:flex;justify-content:space-between;align-items:center;font-size:14px;margin-bottom:18px}
+.pos-total strong{font-size:23px;letter-spacing:-.5px}.pos-charge{width:100%;justify-content:center;padding:16px}
+.pos-success{text-align:center}.pos-success>svg{margin-bottom:14px}.pos-success-values{display:grid;gap:10px;margin:20px 0 25px}
+.pos-success-values span{display:flex;justify-content:space-between;padding:12px;background:#f8fafc;border-radius:8px}
+@media(max-width:1150px){.pos-workspace{grid-template-columns:minmax(0,1fr) 300px}}
+@media(max-width:900px){.pos-workspace{display:flex;flex-direction:column}.pos-ticket{min-height:350px}.pos-grid{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}}
+@media(max-width:550px){.content:has(.pos-page){padding:10px}.pos-catalog{padding:14px}.pos-filters{flex-wrap:wrap}.pos-topbar{flex-wrap:wrap}}
