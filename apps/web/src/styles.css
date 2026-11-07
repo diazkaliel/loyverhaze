@@ -76,3 +76,11 @@
 @media(max-width:1150px){.pos-workspace{grid-template-columns:minmax(0,1fr) 300px}}
 @media(max-width:900px){.pos-workspace{display:flex;flex-direction:column}.pos-ticket{min-height:350px}.pos-grid{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}}
 @media(max-width:550px){.content:has(.pos-page){padding:10px}.pos-catalog{padding:14px}.pos-filters{flex-wrap:wrap}.pos-topbar{flex-wrap:wrap}}
+
+/* Cash drawer */
+.cash-actions{display:flex;align-items:center;flex-wrap:wrap;gap:6px}
+.cash-actions button{border:1px solid #dfe6f0;background:#fff;border-radius:7px;padding:7px 9px;color:#3556bd;font-size:12px}
+.cash-actions button:hover{background:#eff3ff}
+.cash-heading{font-size:18px;letter-spacing:-.4px;margin:34px 0 15px}
+.cash-subtitle{display:block;font-size:10px;color:#94a3b8;margin-top:6px}
+.cash-page .table-wrap{border-radius:0 0 14px 14px}
