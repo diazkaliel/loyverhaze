@@ -15,7 +15,7 @@ class OrganizationRoles(permissions.BasePermission):
         member = current_membership(request)
         allowed = {"owner", "manager"} if view.basename == "stores" else {"owner"}
         if request.method in permissions.SAFE_METHODS:
-            return member.role in ("owner", "manager")
+            return view.basename == "stores" or member.role in ("owner", "manager")
         return member.role in allowed
 
 
