@@ -48,7 +48,7 @@ export function InventoryManagement({organizationId,canWrite,view}:Props){
       <button onClick={()=>void refresh()} disabled={loading}><RefreshCw size={16}/> Actualizar</button></div>
    <div className="table-wrap"><table><thead><tr>{view==='stock'?<><th>Artículo</th><th>REF (SKU)</th><th>Sucursal</th><th>Existencias</th></>:<><th>Fecha</th><th>Artículo</th><th>Sucursal</th><th>Tipo</th><th>Cambio</th><th>Resultado</th><th>Usuario</th></>}</tr></thead><tbody>
     {view==='stock'?stocks.map(r=><tr key={r.item_id+'-'+r.store_id}><td>{canWrite&&r.store_active?<button className="table-link" onClick={()=>openForm(r)}>{r.item_name}</button>:r.item_name}</td><td>{r.sku}</td><td>{r.store_name}{!r.store_active?' (Inactiva)':''}</td><td><strong>{r.quantity}</strong></td></tr>):
-    movements.map(m=><tr key={m.id}><td>{new Date(m.created_at).toLocaleString('es-CL')}</td><td>{m.item_name}</td><td>{m.store_name}</td><td>{m.reason==='receipt'?'Entrada':'Ajuste'}</td><td>{m.quantity_delta}</td><td>{m.resulting_quantity}</td><td>{m.username}</td></tr>)}
+    movements.map(m=><tr key={m.id}><td>{new Date(m.created_at).toLocaleString('es-CL')}</td><td>{m.item_name}</td><td>{m.store_name}</td><td>{m.reason==='receipt'?'Entrada':m.reason==='sale'?'Venta':'Ajuste'}</td><td>{m.quantity_delta}</td><td>{m.resulting_quantity}</td><td>{m.username}</td></tr>)}
    </tbody></table>{!loading&&(view==='stock'?stocks.length:movements.length)===0&&<div className="empty">No hay registros. Para iniciar el inventario, crea artículos y sucursales.</div>}</div>
    {showForm&&<div className="overlay"><form className="dialog" onSubmit={e=>void submit(e)}><h2>Registrar movimiento de stock</h2>
      {error&&<div className="error" role="alert">{error}</div>}
