@@ -1,0 +1,53 @@
+name: Validate foundation
+on:
+  pull_request:
+  push:
+    branches: [main, feat/foundation-catalog]
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: loyverhaze_test
+          POSTGRES_USER: loyverhaze
+          POSTGRES_PASSWORD: ci-only-password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U loyverhaze -d loyverhaze_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    defaults:
+      run:
+        working-directory: apps/api
+    env:
+      DATABASE_URL: postgresql://loyverhaze:ci-only-password@localhost:5432/loyverhaze_test
+      DJANGO_SECRET_KEY: ci-only-not-for-production
+      DJANGO_DEBUG: "false"
+      DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: apps/api/requirements.txt
+      - run: pip install -r requirements.txt
+      - run: python manage.py check
+      - run: python manage.py makemigrations --check --dry-run
+      - run: python manage.py test modules.catalog
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: npm install
+      - run: npm run build
