@@ -1,3 +1,4 @@
+from decimal import Decimal
 from rest_framework import serializers
 from .models import CashMovement, CashShift
 
@@ -14,7 +15,7 @@ class ShiftCloseSerializer(serializers.Serializer):
 class MovementCreateSerializer(serializers.Serializer):
     shift_id = serializers.UUIDField()
     kind = serializers.ChoiceField(choices=CashMovement.Kind.choices)
-    amount = serializers.DecimalField(max_digits=14, decimal_places=2, min_value="0.01")
+    amount = serializers.DecimalField(max_digits=14, decimal_places=2, min_value=Decimal("0.01"))
     note = serializers.CharField(max_length=300, allow_blank=False)
 
 
