@@ -3,6 +3,7 @@ import {createRoot} from 'react-dom/client';
 import {Plus,RefreshCw,Search,LogOut} from 'lucide-react';
 import {Login} from './components/Login';
 import {OrganizationManagement} from './components/OrganizationManagement';
+import {InventoryManagement} from './components/InventoryManagement';
 import {api,type Category,type Item,type Session} from './api';
 import {CatalogForm} from './components/CatalogForm';
 import {Sidebar,type View} from './components/Sidebar';
@@ -19,7 +20,7 @@ function App(){
  const [form,setForm]=useState<{kind:'item';item?:Item}|{kind:'category';category?:Category}|null>(null);
  async function refresh(){setLoading(true);setError('');try{const [i,c]=await Promise.all([api.items(),api.categories()]);setItems(i);setCategories(c)}catch(e){setError(e instanceof Error?e.message:String(e))}finally{setLoading(false)}}
  useEffect(()=>{api.session().then(s=>{setSession(s);if(s.authenticated)void refresh()}).catch(e=>setError(String(e)))},[]);
- const title=view==='summary'?'Resumen de ventas':view==='items'?'Lista de artículos':view==='categories'?'Categorías':view==='stores'?'Sucursales':'Empleados';
+ const title=view==='summary'?'Resumen de ventas':view==='items'?'Lista de artículos':view==='categories'?'Categorías':view==='stores'?'Sucursales':view==='employees'?'Empleados':view==='stock'?'Existencias':'Movimientos';
  const visibleItems=useMemo(()=>items.filter(i=>[i.name,i.sku,i.barcode,categories.find(c=>c.id===i.category)?.name??''].some(v=>v.toLocaleLowerCase().includes(search.toLocaleLowerCase()))),[items,categories,search]);
  const visibleCategories=useMemo(()=>categories.filter(c=>c.name.toLocaleLowerCase().includes(search.toLocaleLowerCase())),[categories,search]);
  const activeRole=session?.organizations.find(o=>o.id===session.active_organization_id)?.role??'';
@@ -29,9 +30,9 @@ function App(){
  if(!session)return <div className="startup">Conectando con Loyverhaze…{error&&<div className="error" role="alert">{error}</div>}</div>;
  if(!session.authenticated)return <Login onLogin={s=>{setSession(s);void refresh()}}/>;
  return <div className="shell"><Sidebar view={view} onNavigate={nav}/><main>
- <header><span>Back Office <span className="muted">/ {view==='summary'?'Informes':view==='stores'?'Configuración':view==='employees'?'Personal':'Artículos'} / {title}</span></span><div className="account">{session.organizations.length>0&&<label className="org-choice"><span className="sr-only">Negocio activo</span><select aria-label="Negocio activo" value={session.active_organization_id??''} onChange={e=>void switchOrganization(e.target.value)}>{session.organizations.map(o=><option key={o.id} value={o.id}>{o.name}</option>)}</select></label>}<span className="user">{session.username}</span><button className="signout" onClick={()=>void signOut()} title="Cerrar sesión"><LogOut size={17}/> Salir</button></div></header>
+ <header><span>Back Office <span className="muted">/ {view==='summary'?'Informes':view==='stores'?'Configuración':view==='employees'?'Personal':view==='stock'||view==='movements'?'Inventario':'Artículos'} / {title}</span></span><div className="account">{session.organizations.length>0&&<label className="org-choice"><span className="sr-only">Negocio activo</span><select aria-label="Negocio activo" value={session.active_organization_id??''} onChange={e=>void switchOrganization(e.target.value)}>{session.organizations.map(o=><option key={o.id} value={o.id}>{o.name}</option>)}</select></label>}<span className="user">{session.username}</span><button className="signout" onClick={()=>void signOut()} title="Cerrar sesión"><LogOut size={17}/> Salir</button></div></header>
  <section className="content">
- {(view==='stores'||view==='employees')?<OrganizationManagement key={session.active_organization_id+'-'+view} kind={view} organizationId={session.active_organization_id} role={activeRole}/> : <>
+ {(view==='stores'||view==='employees')?<OrganizationManagement key={session.active_organization_id+'-'+view} kind={view} organizationId={session.active_organization_id} role={activeRole}/> :(view==='stock'||view==='movements')?<InventoryManagement key={session.active_organization_id+'-'+view} organizationId={session.active_organization_id} canWrite={session.is_staff} view={view}/> : <>
  <div className="heading"><div><p className="eyebrow">{view==='summary'?'INFORMES':'ARTÍCULOS'}</p><h1>{title}</h1><p className="muted">{view==='summary'?'Información de ventas del negocio':'Organiza y administra los artículos de tu negocio.'}</p></div>
  {(view==='items'||view==='categories')&&session.is_staff&&<button className="primary" onClick={()=>setForm(view==='items'?{kind:'item'}:{kind:'category'})}><Plus size={18}/>{view==='items'?'Agregar artículo':'Agregar categoría'}</button>}</div>
  {error&&<div className="error" role="alert">{error}</div>}
