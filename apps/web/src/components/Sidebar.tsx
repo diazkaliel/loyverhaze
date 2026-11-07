@@ -1,5 +1,5 @@
-import {ChartNoAxesCombined, ChevronDown, ChevronRight, Layers3, Package, Tags, Users, Store} from 'lucide-react';
-export type View='summary'|'items'|'categories'|'stores'|'employees';
+import {ChartNoAxesCombined, ChevronDown, ChevronRight, Layers3, Package, Tags, Users, Store, ClipboardList, Boxes} from 'lucide-react';
+export type View='summary'|'items'|'categories'|'stores'|'employees'|'stock'|'movements';
 type Props={view:View;onNavigate:(next:View)=>void};
 export function Sidebar({view,onNavigate}:Props){
   return <aside className="sidebar"><div className="brand"><span className="brand-mark">L</span><span>Loyverhaze<small>BACK OFFICE</small></span></div>
@@ -9,6 +9,9 @@ export function Sidebar({view,onNavigate}:Props){
       <div className="menu-label section-title"><Layers3 size={16}/> ARTÍCULOS <ChevronDown size={14}/></div>
       <button className={view==='items'?'active':''} onClick={()=>onNavigate('items')}><Package size={18}/> Lista de artículos</button>
       <button className={view==='categories'?'active':''} onClick={()=>onNavigate('categories')}><Tags size={18}/> Categorías</button>
+      <div className="menu-label section-title"><Boxes size={16}/> INVENTARIO <ChevronDown size={14}/></div>
+      <button className={view==='stock'?'active':''} onClick={()=>onNavigate('stock')}><Boxes size={18}/> Existencias</button>
+      <button className={view==='movements'?'active':''} onClick={()=>onNavigate('movements')}><ClipboardList size={18}/> Movimientos</button>
       <div className="menu-label section-title"><Users size={16}/> PERSONAL <ChevronDown size={14}/></div>
       <button className={view==='employees'?'active':''} onClick={()=>onNavigate('employees')}><Users size={18}/> Empleados</button>
       <div className="menu-label section-title"><Store size={16}/> CONFIGURACIÓN <ChevronDown size={14}/></div>
