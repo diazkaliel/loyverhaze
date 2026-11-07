@@ -4,12 +4,26 @@ from django.contrib.auth import authenticate, login, logout
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
 from django.views.decorators.http import require_GET, require_POST
+from modules.organization.models import Membership
 
 
 def session_payload(request):
     user = request.user
-    return {"authenticated": user.is_authenticated, "username": user.get_username() if user.is_authenticated else None,
-            "is_staff": bool(user.is_authenticated and user.is_staff)}
+    if not user.is_authenticated:
+        return {"authenticated": False, "username": None, "is_staff": False, "organizations": [], "active_organization_id": None}
+    memberships = list(Membership.objects.select_related("organization").filter(user=user).order_by("organization__created_at"))
+    selected_id = request.session.get("organization_id")
+    active = next((m for m in memberships if str(m.organization_id) == selected_id), None)
+    if active is None and memberships:
+        active = memberships[0]
+        request.session["organization_id"] = str(active.organization_id)
+    return {
+        "authenticated": True,
+        "username": user.get_username(),
+        "is_staff": bool(active and active.role in ("owner", "manager")),
+        "organizations": [{"id": str(m.organization_id), "name": m.organization.name, "role": m.role} for m in memberships],
+        "active_organization_id": str(active.organization_id) if active else None,
+    }
 
 
 @require_GET
