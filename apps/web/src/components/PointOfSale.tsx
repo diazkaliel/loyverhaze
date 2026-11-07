@@ -1,6 +1,6 @@
 import {useEffect,useMemo,useState} from 'react';
 import {Search,Plus,Minus,Trash2,ShoppingBag,CheckCircle2} from 'lucide-react';
-import {api,type Item,type Category,type StockRow,type Store,type Sale,type CheckoutInput} from '../api';
+import {api,type Item,type Category,type StockRow,type Store,type Sale,type CheckoutInput,type CashShift} from '../api';
 
 type CartLine={item:Item;quantity:number};
 const money=(value:string|number)=>new Intl.NumberFormat('es-CL',{minimumFractionDigits:2,maximumFractionDigits:2}).format(Number(value));
@@ -9,6 +9,7 @@ export function PointOfSale({organizationId}:{organizationId:string|null}){
  const [categories,setCategories]=useState<Category[]>([]);
  const [stock,setStock]=useState<StockRow[]>([]);
  const [stores,setStores]=useState<Store[]>([]);
+ const [shifts,setShifts]=useState<CashShift[]>([]);
  const [storeId,setStoreId]=useState('');
  const [search,setSearch]=useState('');
  const [category,setCategory]=useState('');
@@ -19,11 +20,12 @@ export function PointOfSale({organizationId}:{organizationId:string|null}){
  const [error,setError]=useState('');
  const [sale,setSale]=useState<Sale|null>(null);
  const [requestKey,setRequestKey]=useState('');
- useEffect(()=>{let active=true;Promise.all([api.items(),api.categories(),api.stock(),api.stores()]).then(([i,c,b,s])=>{
-    if(!active)return;setItems(i);setCategories(c);setStock(b);setStores(s.filter(x=>x.is_active));
+ useEffect(()=>{let active=true;Promise.all([api.items(),api.categories(),api.stock(),api.stores(),api.cashShifts()]).then(([i,c,b,s,h])=>{
+    if(!active)return;setItems(i);setCategories(c);setStock(b);setStores(s.filter(x=>x.is_active));setShifts(h);
     setStoreId(prev=>s.some(x=>x.is_active&&x.id===prev)?prev:(s.find(x=>x.is_active)?.id??''));
     setCart([]);setSale(null);setPaying(false);setError('');
  }).catch(e=>{if(active)setError(String(e))});return()=>{active=false}},[organizationId]);
+ const openShift=shifts.find(s=>s.store===storeId&&s.status==='open');
  const available=items.filter(x=>x.available_for_sale&&(category===''||x.category===category)&&
    (x.name.toLocaleLowerCase().includes(search.toLocaleLowerCase())||x.sku.toLocaleLowerCase().includes(search.toLocaleLowerCase())));
  const qtyAvailable=(id:string)=>Number(stock.find(x=>x.item_id===id&&x.store_id===storeId)?.quantity??0);
@@ -39,7 +41,7 @@ export function PointOfSale({organizationId}:{organizationId:string|null}){
      return existing?prev.map(x=>x.item.id===item.id?{...x,quantity:next}:x):[...prev,{item,quantity:next}];
    });
  }
- function startPay(){setError('');setCash(total);setRequestKey(crypto.randomUUID());setPaying(true)}
+ function startPay(){if(!openShift){setError('Abre la caja de esta sucursal en Turnos y efectivo antes de cobrar.');return}setError('');setCash(total);setRequestKey(crypto.randomUUID());setPaying(true)}
  async function checkout(){
    if(!storeId||cart.length===0||busy)return;
    setBusy(true);setError('');
@@ -57,6 +59,7 @@ export function PointOfSale({organizationId}:{organizationId:string|null}){
     <div className="pos-topbar"><div><p className="eyebrow">PUNTO DE VENTA</p><h1>Ventas</h1></div>
       <label>Sucursal<select aria-label="Sucursal de venta" value={storeId} onChange={e=>{setStoreId(e.target.value);setCart([]);setError('')}}>
        {stores.map(s=><option key={s.id} value={s.id}>{s.name}</option>)}</select></label></div>
+    {!openShift&&<div className="notice">La caja de esta sucursal está cerrada. Ve a «Turnos y efectivo» para abrirla antes de cobrar.</div>}
     <div className="pos-filters"><label className="search-field"><Search size={17}/><input placeholder="Buscar nombre o SKU" value={search} onChange={e=>setSearch(e.target.value)}/></label>
       <select aria-label="Categoría" value={category} onChange={e=>setCategory(e.target.value)}><option value="">Todos los artículos</option>{categories.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select></div>
     {error&&!paying&&<div className="error" role="alert">{error}</div>}
@@ -73,7 +76,7 @@ export function PointOfSale({organizationId}:{organizationId:string|null}){
          <button aria-label={`Sumar ${line.item.name}`} disabled={line.quantity>=qtyAvailable(line.item.id)} onClick={()=>adjust(line.item,1)}><Plus size={14}/></button></div>
        <b>{money(line.quantity*Number(line.item.price))}</b></div>)}</div>
     <div className="pos-footer"><div className="pos-total"><span>Total</span><strong>{money(total)}</strong></div>
-     <button className="primary pos-charge" disabled={cart.length===0||!storeId} onClick={startPay}>Cobrar · {money(total)}</button></div>
+     <button className="primary pos-charge" disabled={cart.length===0||!storeId||!openShift} onClick={startPay}>Cobrar · {money(total)}</button></div>
    </aside>
   </div>
   {paying&&<div className="overlay"><div className="dialog"><h2>Cobrar en efectivo</h2><p className="muted">Total a cobrar: <strong>{money(total)}</strong></p>
