@@ -15,4 +15,5 @@ urlpatterns = [
     path("api/", include("modules.organization.urls")),
     path("api/", include("modules.inventory.urls")),
     path("api/", include("modules.sales.urls")),
+    path("api/", include("modules.cash.urls")),
 ]
