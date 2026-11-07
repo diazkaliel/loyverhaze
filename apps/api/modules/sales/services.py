@@ -15,10 +15,10 @@ def _price(value):
 
 
 @transaction.atomic
-def checkout(*, organization, store_id, lines, payment_method, cash_received, key, cashier):
+def checkout(*, organization, store_id, lines, payment_method, cash_received, idempotency_key, cashier):
     # Organization row serializes sale requests within this tenant, including retries.
     Organization.objects.select_for_update().get(pk=organization.pk)
-    existing = Sale.objects.filter(organization=organization, idempotency_key=key).first()
+    existing = Sale.objects.filter(organization=organization, idempotency_key=idempotency_key).first()
     if existing is not None:
         # A retry must not be capable of silently changing the existing transaction.
         original = [(str(line.item_id), line.quantity) for line in existing.lines.order_by("item_id")]
