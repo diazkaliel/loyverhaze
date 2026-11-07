@@ -6,7 +6,7 @@ class StockMovementCreateSerializer(serializers.Serializer):
     item_id = serializers.UUIDField()
     store_id = serializers.UUIDField()
     quantity_delta = serializers.DecimalField(max_digits=18, decimal_places=3)
-    reason = serializers.ChoiceField(choices=StockMovement.Reason.choices)
+    reason = serializers.ChoiceField(choices=[StockMovement.Reason.RECEIPT, StockMovement.Reason.ADJUSTMENT])
     note = serializers.CharField(required=False, allow_blank=True, max_length=300)
     idempotency_key = serializers.UUIDField()
 
