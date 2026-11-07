@@ -12,4 +12,5 @@ urlpatterns = [
     path("api/organization/select/", choose_organization),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path("api/", include("modules.catalog.urls")),
+    path("api/", include("modules.organization.urls")),
 ]
