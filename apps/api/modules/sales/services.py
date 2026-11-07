@@ -53,7 +53,7 @@ def checkout(*, organization, store_id, lines, payment_method, cash_received, id
 
     sale = Sale.objects.create(
         organization=organization, store=store, cashier=cashier,
-        idempotency_key=key, payment_method=payment_method, total=total,
+        idempotency_key=idempotency_key, payment_method=payment_method, total=total,
         cash_received=cash_received, change_due=cash_received-total,
     )
     for item, quantity, amount in snapshots:
