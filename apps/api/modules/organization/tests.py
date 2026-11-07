@@ -99,4 +99,5 @@ class ManagementAPITests(APITestCase):
         member.role = "cashier"
         member.save(update_fields=["role"])
         self.assertEqual(self.client.get("/api/employees/").status_code, 403)
-        self.assertEqual(self.client.get("/api/stores/").status_code, 403)
+        self.assertEqual(self.client.get("/api/stores/").status_code, 200)
+        self.assertEqual(self.client.post("/api/stores/", {"name": "No permitido"}).status_code, 403)
