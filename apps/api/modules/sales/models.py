@@ -11,6 +11,7 @@ class Sale(models.Model):
     organization = models.ForeignKey("organization.Organization", on_delete=models.PROTECT)
     store = models.ForeignKey("organization.Store", on_delete=models.PROTECT)
     cashier = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    cash_shift = models.ForeignKey("cash.CashShift", on_delete=models.PROTECT, null=True, blank=True, related_name="sales")
     idempotency_key = models.UUIDField()
     total = models.DecimalField(max_digits=14, decimal_places=2)
     cash_received = models.DecimalField(max_digits=14, decimal_places=2)
